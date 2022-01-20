@@ -1,16 +1,5 @@
 const connection = require('./connection');
 
-const getNewAuthor = ({id, firstName, middleName, lastName}) => {
-    const fullName = [firstName, middleName, lastName].filter((name) => name).join("");
-    return {
-        id,
-        firstName,
-        middleName,
-        lastName,
-        fullName,
-    }
-}
-
 const serialize = (authorData) => {
     return {
       id: authorData.id,
@@ -23,7 +12,7 @@ const serialize = (authorData) => {
 const getAll = async () => {
     const [authors] = await connection.execute('SELECT id, first_name, middle_name, last_name FROM authors');
    
-    return authors.map(serialize).map(getNewAuthor);
+    return authors.map(serialize);
 }
 
 const findById = async (id) => {
@@ -33,20 +22,13 @@ const findById = async (id) => {
 
     const {firstName, middleName, lastName} = authorData.map(serialize)[0];
 
-    return getNewAuthor({
+    return {
         id,
         firstName,
         middleName,
         lastName,
-    });
+    };
 }
-
-const isValid = (firstName, lastName) => {
-    if (!firstName || typeof firstName !== 'string') return false;
-    if (!lastName || typeof lastName !== 'string') return false;
-
-    return true;
-};
 
 const create = async (firstName, middleName, lastName) => (connection.execute('INSERT INTO model_example.authors (first_name, middle_name, last_name) VALUES (?, ?, ?)', 
     [firstName, middleName, lastName]));
@@ -55,6 +37,5 @@ const create = async (firstName, middleName, lastName) => (connection.execute('I
 module.exports = {
     getAll,
     findById,
-    isValid,
     create,
 }
